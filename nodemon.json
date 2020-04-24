@@ -1,0 +1,6 @@
+{
+    "env": {
+        "MONGO_USER": "pickxUser",
+        "MONGO_PASSWORD": "pickxUserPassword"
+    }
+}
