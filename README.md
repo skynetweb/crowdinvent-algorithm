@@ -10,4 +10,17 @@ This CrowdInvent project was created for the EuVsVirus hackathon and the main go
     - users
     - ideas
     - category
-- 
+- graphql endpoints
+    - ideas
+    - users
+    - category
+
+- test/mock data available in [models/*](https://github.com/skynetweb/crowdinvent-algorithm/tree/master/models)
+
+### What we need
+
+- Please make it work :)
+- An algorithm used for sorting and extracting relevant ideas based on the data we provided for a certain user
+- Can be forked using any technology: phyton, R, Php, react js, vuejs
+- Database is build with mongodb but it can be restructured to be used for relational databases. 
+    
