@@ -198,7 +198,7 @@ app.use(bodyParser.json());
 
 mongoose.connect(url)
         .then( () => {
-            app.listen(3001);
+            app.listen(process.env.PORT);
         }
         ).catch(err => {
             console.log(err);
