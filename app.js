@@ -138,7 +138,7 @@ const rs = User.find({id: 2}).exec(function (err, users) {
 });
 
 
-app.use('/', graphQlHttp({
+app.use('/graphql', graphQlHttp({
     schema: buildSchema(`
        type Category {
            _id: ID!
