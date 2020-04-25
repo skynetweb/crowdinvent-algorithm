@@ -30,8 +30,7 @@ const coefDate = 0.05;
 const treshold = 0.9;
 const millisec = 1000 * 60 * 60 * 24;
 
-app.get('/timeline', function(req, res, next) {
-    const result = [];
+app.get('/', function(req, res, next) {
     const rs = User.find({id: 2}).exec(function (err, users) {
         users.map(user => {
             let userIdeasCategories = user.categories;
@@ -130,7 +129,7 @@ app.get('/timeline', function(req, res, next) {
     
                     score += userRandom;
                      
-                    result.push([{"scores": score, "ideaId": idea.id, "followees": idea.isInFollowees, "interacted": idea.isInInteracted }]);
+                    res.json({"score": score, "ideaId": idea.id, "followees": idea.isInFollowees, "interacted": idea.isInInteracted });
                     // if (score > 0.3) {
                     //      console.log({"score": score, "ideaId": idea.id, "followees": idea.isInFollowees, "interacted": idea.isInInteracted });
                     // } 
@@ -138,7 +137,7 @@ app.get('/timeline', function(req, res, next) {
             });  
         })
     });
-    res.json(result);
+
    });
 /** Add published ideas in users */
 
