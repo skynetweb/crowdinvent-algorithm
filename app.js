@@ -31,113 +31,113 @@ const treshold = 0.9;
 const millisec = 1000 * 60 * 60 * 24;
 
 app.get('/', function(req, res, next) {
-    const rs = User.find({id: 2}).exec(function (err, users) {
-        users.map(user => {
-            let userIdeasCategories = user.categories;
-            let userIdeasFollowees = user.followees;
-            let userInteractedIdeas = user.interacted_ideas.map(interIdea => {
-                return interIdea.id;
-            });
+    // const rs = User.find({id: 2}).exec(function (err, users) {
+    //     users.map(user => {
+    //         let userIdeasCategories = user.categories;
+    //         let userIdeasFollowees = user.followees;
+    //         let userInteractedIdeas = user.interacted_ideas.map(interIdea => {
+    //             return interIdea.id;
+    //         });
             
-            let userLicenseTypes = user.license_types;
-            let userKeywords = user.keywords;
+    //         let userLicenseTypes = user.license_types;
+    //         let userKeywords = user.keywords;
         
-            Idea.aggregate(
-            [
-                {
-                    "$lookup":
-                    {
-                        from: "user",
-                        localField: "user_id",
-                        foreignField: "id",
-                        as: "docs"
-                    }
-                },
-            {
-            "$addFields": {
-                isInCategories: {
-                  $cond : {
-                      if: { 
-                          $in : ["$category", userIdeasCategories]
-                      }, 
-                      then: 1, 
-                      else: 0
-                  }
-                },
-                isInFollowees: {
-                    $cond : {
-                        if: { 
-                            $in : ["$user_id", userIdeasFollowees]
-                        }, 
-                        then: 1, 
-                        else: 0
-                    }
-                },
-                isInInteracted: {
-                    $cond : {
-                        if: { 
-                            $in : ["$id", userInteractedIdeas]
-                        }, 
-                        then: 1, 
-                        else: 0
-                    }
-                },
-                isInLicenseTypes: {
-                    $cond : {
-                        if: { 
-                            $in : ["$license_type", userLicenseTypes]
-                        }, 
-                        then: 1, 
-                        else: 0
-                    }
-                },
-                commonKeywords: {
-                    $setIntersection: [
-                      "$keywords", userKeywords
-                    ]
-                },
-                dayssince: {
-                    $abs: {
-                        $trunc: {
-                            $divide: [{ $subtract: [new Date(), '$created'] }, millisec]
-                        }
-                    }
-                }
-              }
-            }
-            ]
-        ).exec(function(err, ideas) {
-                ideas.map(idea => {
-                    console.log(idea.dayssince, idea.created);
-                    let userRandom = Math.random() * coefRandom;
-                    let score = 0;
-                    score += idea.isInCategories * coefCateg;
-                    score += idea.isInFollowees * coefFollowee;
-                    score += idea.isInInteracted * coefInteracted;
-                    score += (idea.keywords.length > 0) ? (idea.commonKeywords.length / idea.keywords.length) * coefKeywords : 0;
-                    score += idea.isInLicenseTypes * coefLicense;
+    //         Idea.aggregate(
+    //         [
+    //             {
+    //                 "$lookup":
+    //                 {
+    //                     from: "user",
+    //                     localField: "user_id",
+    //                     foreignField: "id",
+    //                     as: "docs"
+    //                 }
+    //             },
+    //         {
+    //         "$addFields": {
+    //             isInCategories: {
+    //               $cond : {
+    //                   if: { 
+    //                       $in : ["$category", userIdeasCategories]
+    //                   }, 
+    //                   then: 1, 
+    //                   else: 0
+    //               }
+    //             },
+    //             isInFollowees: {
+    //                 $cond : {
+    //                     if: { 
+    //                         $in : ["$user_id", userIdeasFollowees]
+    //                     }, 
+    //                     then: 1, 
+    //                     else: 0
+    //                 }
+    //             },
+    //             isInInteracted: {
+    //                 $cond : {
+    //                     if: { 
+    //                         $in : ["$id", userInteractedIdeas]
+    //                     }, 
+    //                     then: 1, 
+    //                     else: 0
+    //                 }
+    //             },
+    //             isInLicenseTypes: {
+    //                 $cond : {
+    //                     if: { 
+    //                         $in : ["$license_type", userLicenseTypes]
+    //                     }, 
+    //                     then: 1, 
+    //                     else: 0
+    //                 }
+    //             },
+    //             commonKeywords: {
+    //                 $setIntersection: [
+    //                   "$keywords", userKeywords
+    //                 ]
+    //             },
+    //             dayssince: {
+    //                 $abs: {
+    //                     $trunc: {
+    //                         $divide: [{ $subtract: [new Date(), '$created'] }, millisec]
+    //                     }
+    //                 }
+    //             }
+    //           }
+    //         }
+    //         ]
+    //     ).exec(function(err, ideas) {
+    //             ideas.map(idea => {
+    //                 console.log(idea.dayssince, idea.created);
+    //                 let userRandom = Math.random() * coefRandom;
+    //                 let score = 0;
+    //                 score += idea.isInCategories * coefCateg;
+    //                 score += idea.isInFollowees * coefFollowee;
+    //                 score += idea.isInInteracted * coefInteracted;
+    //                 score += (idea.keywords.length > 0) ? (idea.commonKeywords.length / idea.keywords.length) * coefKeywords : 0;
+    //                 score += idea.isInLicenseTypes * coefLicense;
     
-                    if (idea.dayssince > 0) {
-                        if (idea.dayssince > 30) {
-                            score += (1 / (idea.dayssince / 30)) * coefDate
-                        } else {
-                            score += ((0.2 / (idea.dayssince)) + 0.8) * coefDate;
-                        }
-                    } else {
-                        score += coefDate;
-                    }
+    //                 if (idea.dayssince > 0) {
+    //                     if (idea.dayssince > 30) {
+    //                         score += (1 / (idea.dayssince / 30)) * coefDate
+    //                     } else {
+    //                         score += ((0.2 / (idea.dayssince)) + 0.8) * coefDate;
+    //                     }
+    //                 } else {
+    //                     score += coefDate;
+    //                 }
     
-                    score += userRandom;
+    //                 score += userRandom;
                      
-                    res.json({"score": score, "ideaId": idea.id, "followees": idea.isInFollowees, "interacted": idea.isInInteracted });
-                    // if (score > 0.3) {
-                    //      console.log({"score": score, "ideaId": idea.id, "followees": idea.isInFollowees, "interacted": idea.isInInteracted });
-                    // } 
-                });
-            });  
-        })
-    });
-
+    //                 res.json({"score": score, "ideaId": idea.id, "followees": idea.isInFollowees, "interacted": idea.isInInteracted });
+    //                 // if (score > 0.3) {
+    //                 //      console.log({"score": score, "ideaId": idea.id, "followees": idea.isInFollowees, "interacted": idea.isInInteracted });
+    //                 // } 
+    //             });
+    //         });  
+    //     })
+    // });
+    res.json("Timeline app");
    });
 /** Add published ideas in users */
 
