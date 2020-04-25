@@ -20,56 +20,122 @@ const app = express();
 //     newUser.save();
 // });
 
+const coefCateg = 0.15;
+const coefFollowee = 0.25;
+const coefInteracted = 0.30;
+const coefLicense = 0.05;
+const coefRandom = 0.05;
+const coefKeywords = 0.15;
+const coefDate = 0.05;
+const treshold = 0.9;
+const millisec = 1000 * 60 * 60 * 24;
 
 /** Add published ideas in users */
-// const rs = User.find().exec(function (err, users) {
-//     users.map(user => {
-//         Idea.find({user_id: user.id}).select('id license_type category -_id').exec(function(err, ideas) {
-//             const userLicenseTypes = [];
-//             const userPublishedIdeas = [];
-//             const userCategory = [];
+const rs = User.find({id: 2}).exec(function (err, users) {
+    users.map(user => {
+        let userIdeasCategories = user.categories;
+        let userIdeasFollowees = user.followees;
+        let userInteractedIdeas = user.interacted_ideas.map(interIdea => {
+            return interIdea.id;
+        });
         
-//             ideas.map(idea => {
-//                 userLicenseTypes.push(idea.license_type);
-//                 userPublishedIdeas.push(idea.id);
-//                 userCategory.push(idea.category);
-//             });
+        let userLicenseTypes = user.license_types;
+        let userKeywords = user.keywords;
+    
+        Idea.aggregate(
+        [
+            {
+                "$lookup":
+                {
+                    from: "user",
+                    localField: "user_id",
+                    foreignField: "id",
+                    as: "docs"
+                }
+            },
+        {
+        "$addFields": {
+            isInCategories: {
+              $cond : {
+                  if: { 
+                      $in : ["$category", userIdeasCategories]
+                  }, 
+                  then: 1, 
+                  else: 0
+              }
+            },
+            isInFollowees: {
+                $cond : {
+                    if: { 
+                        $in : ["$user_id", userIdeasFollowees]
+                    }, 
+                    then: 1, 
+                    else: 0
+                }
+            },
+            isInInteracted: {
+                $cond : {
+                    if: { 
+                        $in : ["$id", userInteractedIdeas]
+                    }, 
+                    then: 1, 
+                    else: 0
+                }
+            },
+            isInLicenseTypes: {
+                $cond : {
+                    if: { 
+                        $in : ["$license_type", userLicenseTypes]
+                    }, 
+                    then: 1, 
+                    else: 0
+                }
+            },
+            commonKeywords: {
+                $setIntersection: [
+                  "$keywords", userKeywords
+                ]
+            },
+            dayssince: {
+                $abs: {
+                    $trunc: {
+                        $divide: [{ $subtract: [new Date(), '$created'] }, millisec]
+                    }
+                }
+            }
+          }
+        }
+        ]
+    ).exec(function(err, ideas) {
+            ideas.map(idea => {
+                console.log(idea.dayssince, idea.created);
+                let userRandom = Math.random() * coefRandom;
+                let score = 0;
+                score += idea.isInCategories * coefCateg;
+                score += idea.isInFollowees * coefFollowee;
+                score += idea.isInInteracted * coefInteracted;
+                score += (idea.keywords.length > 0) ? (idea.commonKeywords.length / idea.keywords.length) * coefKeywords : 0;
+                score += idea.isInLicenseTypes * coefLicense;
 
+                if (idea.dayssince > 0) {
+                    if (idea.dayssince > 30) {
+                        score += (1 / (idea.dayssince / 30)) * coefDate
+                    } else {
+                        score += ((0.2 / (idea.dayssince)) + 0.8) * coefDate;
+                    }
+                } else {
+                    score += coefDate;
+                }
 
-//             user.published_ideas = userPublishedIdeas;
-//             user.license_types = [...new Set(userLicenseTypes)];
-//             user.categories = [...new Set(userCategory)];
-//             user.save();
-//         });  
-//     })
-// });
-
-
-// Users.map(user => {
-//    const newUser = new User ({
-//         id: user.id,
-//         first_name: user.first_name,
-//         last_name: user.last_name
-//     });
-
-//     newUser.save();
-// });
-
-// Ideas.map(idea => {
-//    const newIdea = new Idea ({
-//     "id": idea.id,
-//     "user_id": idea.user_id,
-//     "name": idea.name,
-//     "category": idea.category,
-//     "teaser_text": idea.teaser_text,
-//     "full_disclosure_text": idea.full_disclosure_text,
-//     "keywords": idea.keywords,
-//     "license_type": idea.license_type,
-//     "stage_dev": idea.stage_dev
-//     });
-
-//     newIdea.save();
-// });
+                score += userRandom;
+                 
+                // if (score > 0.3) {
+                //      console.log({"score": score, "ideaId": idea.id, "followees": idea.isInFollowees, "interacted": idea.isInInteracted });
+                // } 
+            });
+        });  
+    })
+});
 
 
 app.use('/graphql', graphQlHttp({
@@ -128,7 +194,7 @@ app.use('/graphql', graphQlHttp({
 }));
 
 app.use(bodyParser.json());
-var url = "";
+ var url = "mongodb+srv://crowdInvent:evr0UVSqZX9PeX8M@cluster0-kneou.mongodb.net/crowdInvent?retryWrites=true&w=majority";
 
 mongoose.connect(url)
         .then( () => {

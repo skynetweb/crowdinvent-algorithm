@@ -34,6 +34,9 @@ const ideasSchema = new Schema({
     },
     stage_dev: {
         type: String
+    },
+    created: {
+        type: Date
     }
 
 });
