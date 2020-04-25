@@ -30,7 +30,8 @@ const coefDate = 0.05;
 const treshold = 0.9;
 const millisec = 1000 * 60 * 60 * 24;
 
-app.get('/', function(req, res, next) {
+app.get('/timeline', function(req, res, next) {
+    const result = [];
     const rs = User.find({id: 2}).exec(function (err, users) {
         users.map(user => {
             let userIdeasCategories = user.categories;
@@ -129,7 +130,7 @@ app.get('/', function(req, res, next) {
     
                     score += userRandom;
                      
-                    res.json({"score": score, "ideaId": idea.id, "followees": idea.isInFollowees, "interacted": idea.isInInteracted });
+                    result.push([{"scores": score, "ideaId": idea.id, "followees": idea.isInFollowees, "interacted": idea.isInInteracted }]);
                     // if (score > 0.3) {
                     //      console.log({"score": score, "ideaId": idea.id, "followees": idea.isInFollowees, "interacted": idea.isInInteracted });
                     // } 
@@ -137,7 +138,7 @@ app.get('/', function(req, res, next) {
             });  
         })
     });
-
+    res.json(result);
    });
 /** Add published ideas in users */
 
@@ -200,12 +201,10 @@ app.use('/graphql', graphQlHttp({
 
 app.use(bodyParser.json());
  var url = "mongodb+srv://crowdInvent:evr0UVSqZX9PeX8M@cluster0-kneou.mongodb.net/crowdInvent?retryWrites=true&w=majority";
-
+ var port = process.env.port || 3005;
 mongoose.connect(url)
         .then( () => {
-            app.listen({ port: process.env.PORT || 4000 }).then(({ url }) => {
-                console.log(`🚀 Server ready at ${url}`);
-              });
+            app.listen(port);
         }
         ).catch(err => {
             console.log(err);
