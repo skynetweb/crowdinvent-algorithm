@@ -4,16 +4,8 @@
   "description": "pickx",
   "main": "index.js",
   "scripts": {
-    "client-install": "npm install --prefix client",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "client": "cd ./client && npm start ",
-    "server-prod": "node app.js",
-    "server": "nodemon app.js",
-    "start": "node app.js",
-    "start:dev": "concurrently --kill-others  \"npm run client\" \"npm run server\" "
-  },
-  "engines": {
-    "node": "12.16.x"
+    "start": "nodemon app.js"
   },
   "author": "",
   "license": "ISC",
