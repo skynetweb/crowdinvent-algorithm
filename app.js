@@ -140,10 +140,12 @@ var results = User.find({id: 2}).exec(function (err, users) {
     });
 });
 
-
 app.get('/timeline', function(req, res, next) {
-    
     res.json(ideaResults);
+});
+
+app.get('/news', function(req, res, next) {
+    res.json({response : 'ok', results: []});
 });
 /** Add published ideas in users */
 
