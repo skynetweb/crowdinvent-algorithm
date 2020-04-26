@@ -151,60 +151,60 @@ app.get('/news', function(req, res, next) {
 
 
 
-app.use('/graphql', graphQlHttp({
-    schema: buildSchema(`
-       type Category {
-           _id: ID!
-           id: Int!
-           name: String!
-       } 
+// app.use('/graphql', graphQlHttp({
+//     schema: buildSchema(`
+//        type Category {
+//            _id: ID!
+//            id: Int!
+//            name: String!
+//        } 
 
-       input CategoryInput {
-           id: Int!
-           name: String!
-       }
+//        input CategoryInput {
+//            id: Int!
+//            name: String!
+//        }
 
-       type RootQuery {
-          categories: [Category!]!  
-       }
+//        type RootQuery {
+//           categories: [Category!]!  
+//        }
 
-       type RootMutation {
-           createCategory(eventInput: CategoryInput): Category 
-       }
-       schema {
-           query: RootQuery
-           mutation: RootMutation
-       } 
-    `),
-    rootValue: {
-        categories: () => {
-            return Category.find()
-            .then(results => {
-                return results.map(event => {
-                    console.log(event._doc.props);
-                    return {...event._doc, _id: event._doc._id.toString(), props: event._doc.props}
-                });
-            })
-            .catch(err => {
-                throw err;
-            });
-        },
-        createCategory: (args) => {
+//        type RootMutation {
+//            createCategory(eventInput: CategoryInput): Category 
+//        }
+//        schema {
+//            query: RootQuery
+//            mutation: RootMutation
+//        } 
+//     `),
+//     rootValue: {
+//         categories: () => {
+//             return Category.find()
+//             .then(results => {
+//                 return results.map(event => {
+//                     console.log(event._doc.props);
+//                     return {...event._doc, _id: event._doc._id.toString(), props: event._doc.props}
+//                 });
+//             })
+//             .catch(err => {
+//                 throw err;
+//             });
+//         },
+//         createCategory: (args) => {
         
-            const event = new Category ({
-                id: args.eventInput.id,
-                name: args.eventInput.name,
-            });
+//             const event = new Category ({
+//                 id: args.eventInput.id,
+//                 name: args.eventInput.name,
+//             });
 
-           return event.save().then(result => {
-               return {...result._doc}
-            }).catch(err => {
-                console.log(err);
-            });
-        }
-    },
-    graphiql: true
-}));
+//            return event.save().then(result => {
+//                return {...result._doc}
+//             }).catch(err => {
+//                 console.log(err);
+//             });
+//         }
+//     },
+//     graphiql: true
+// }));
 
 app.use(bodyParser.json());
  var url = "mongodb+srv://crowdInvent:evr0UVSqZX9PeX8M@cluster0-kneou.mongodb.net/crowdInvent?retryWrites=true&w=majority";
